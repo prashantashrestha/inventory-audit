@@ -39,22 +39,26 @@ async function fetchNetboxVMs() {
 (async () => {
   try {
     const netboxVMs = await fetchNetboxVMs();
-    console.log(netboxVMs)
     const netboxVMNames = netboxVMs.filter(vm => xenHosts.includes(vm.cluster.name)).map(vm => vm.name.toLowerCase());
 
     // Compare
     const missingInNetBox = xenVMNames.filter(x => !netboxVMNames.includes(x));
     const missingInXen = netboxVMNames.filter(x => !xenVMNames.includes(x));
 
-    console.log("✅ Total VMs in Xen Orchestra:", xenVMNames.length);
-    console.log("✅ Total VMs in NetBox:", netboxVMNames.length);
+    console.log(" Total VMs in Xen Orchestra:", xenVMNames.length);
+    console.log(" Total VMs in NetBox:", netboxVMNames.length);
+	
+    const output = `
+    VMs missing in NetBox:
+    ${missingInNetBox.length ? JSON.stringify(missingInNetBox, null, 2) : "None"}
+    
+    VMs missing in Xen Orchestra:
+    ${missingInXen.length ? JSON.stringify(missingInXen, null, 2) : "None"}
+    `;
+    
+    fs.writeFileSync("missing_vms_report.txt", output);
 
-    console.log("\n🚨 VMs missing in NetBox:");
-    console.log(missingInNetBox.length ? missingInNetBox : "None");
-
-    console.log("\n⚠️  VMs missing in Xen Orchestra:");
-    console.log(missingInXen.length ? missingInXen : "None");
   } catch (err) {
-    console.error("❌ Error:", err.message);
+    console.error(" Error:", err.message);
   }
 })();
